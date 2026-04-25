@@ -19,6 +19,8 @@ playoffs.columns = playoffs.columns.str.strip()
 def preprocess(df):
     df = df.copy()
 
+    df.columns = df.columns.str.strip()
+
     numeric_cols = [
         'TeamPts','OppPts','FG','FGA','FG_pct',
         '3P','3PA','3P_pct',
@@ -39,9 +41,10 @@ def preprocess(df):
         if col in df.columns:
             df[col] = pd.to_numeric(df[col], errors="coerce")
 
-    if "Date" in df.columns:
-        df["Date"] = pd.to_datetime(df["Date"], errors="coerce")
-    df["HomeAway"] = df["HomeAway"].astype(str).str.strip()
+    if "Home/Away" in df.columns:
+        df.rename(columns={"Home/Away": "HomeAway"}, inplace=True)
+    if "Home Away" in df.columns:
+        df.rename(columns={"Home Away": "HomeAway"}, inplace=True)
 
     df["win"] = df["Result"].astype(str).str.contains("W").astype(int)
 

@@ -2,3 +2,6 @@ streamlit
 pandas
 matplotlib
 numpy
+StandardScaler
+KNeighborsClassifier
+DecisionTreeClassifier

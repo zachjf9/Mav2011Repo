@@ -13,13 +13,18 @@ playoffs = pd.read_csv('https://raw.githubusercontent.com/zachjf9/Mav2011Repo/re
 
 # data preprocessing (used AI to clean the data)
 
-regularSeason.columns = regularSeason.columns.str.strip()
-playoffs.columns = playoffs.columns.str.strip()
-
 def preprocess(df):
     df = df.copy()
-
     df.columns = df.columns.str.strip()
+
+    rename_map = {
+        "Home/Away": "HomeAway",
+        "Home Away": "HomeAway",
+        "W/L": "Result",
+        "Outcome": "Result"
+    }
+
+    df.rename(columns={k: v for k, v in rename_map.items() if k in df.columns}, inplace=True)
 
     numeric_cols = [
         'TeamPts','OppPts','FG','FGA','FG_pct',
@@ -41,21 +46,27 @@ def preprocess(df):
         if col in df.columns:
             df[col] = pd.to_numeric(df[col], errors="coerce")
 
-    if "Home/Away" in df.columns:
-        df.rename(columns={"Home/Away": "HomeAway"}, inplace=True)
-    if "Home Away" in df.columns:
-        df.rename(columns={"Home Away": "HomeAway"}, inplace=True)
+    if "Date" in df.columns:
+        df["Date"] = pd.to_datetime(df["Date"], errors="coerce")
 
-    df["win"] = df["Result"].astype(str).str.contains("W").astype(int)
+    if "Result" in df.columns:
+        df["win"] = df["Result"].astype(str).str.contains("W").astype(int)
+    else:
+        df["win"] = np.nan  
 
-    df["Point_Diff"] = df["TeamPts"] - df["OppPts"]
-    df["Rebound_Diff"] = df["TRB"] - df["OppTRB"]
-    df["Turnover_Diff"] = df["TOV"] - df["OppTOV"]
+    if "TeamPts" in df.columns and "OppPts" in df.columns:
+        df["Point_Diff"] = df["TeamPts"] - df["OppPts"]
 
-    df = df.dropna(subset=["Date", "TeamPts", "OppPts"])
+    if "TRB" in df.columns and "OppTRB" in df.columns:
+        df["Rebound_Diff"] = df["TRB"] - df["OppTRB"]
+
+    if "TOV" in df.columns and "OppTOV" in df.columns:
+        df["Turnover_Diff"] = df["TOV"] - df["OppTOV"]
+
+    required = ["TeamPts", "OppPts"]
+    if "Date" in df.columns:
+        required.append("Date")
+
+    df = df.dropna(subset=[c for c in required if c in df.columns])
 
     return df
-
-regular_clean = preprocess(regularSeason)
-playoffs_clean = preprocess(playoffs)
-

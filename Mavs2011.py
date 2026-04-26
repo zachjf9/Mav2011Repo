@@ -38,8 +38,19 @@ st.title("2011 Dallas Mavericks Season Analysis")
 model1_data = reg_clean.copy()
 model1_data = model1_data.dropna(subset=["win"])
 
-feature_cols = model1_data.select_dtypes(include=[np.number]).columns.tolist()
-feature_cols = [c for c in feature_cols if c != "win"]
+feature_cols = [
+    "FG", "FGA",
+    "3P", "3PA",
+    "2P", "2PA",
+    "TRB", "AST",
+    "STL", "BLK",
+    "TOV", "PF"
+]
+
+feature_cols = [c for c in feature_cols if c in model1_data.columns]
+
+for col in feature_cols:
+    model1_data[col] = pd.to_numeric(model1_data[col], errors="coerce")
 
 model1_data[feature_cols] = model1_data[feature_cols].fillna(
     model1_data[feature_cols].median()

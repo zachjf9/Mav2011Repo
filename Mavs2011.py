@@ -28,50 +28,45 @@ def preprocess(df):
     else:
         df["win"] = np.nan
 
-    numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
-
-    for col in numeric_cols:
-        df[col] = pd.to_numeric(df[col], errors="coerce")
-
     return df
 
 reg_clean = preprocess(regularSeason)
 playoffs_clean = preprocess(playoffs)
 
-# data visualization and modeling
-
-st.title("2011 Dallas Mavericks ML Analysis")
-
-# first ml model
+st.title("2011 Dallas Mavericks Season Analysis")
 
 model1_data = reg_clean.copy()
-
 model1_data = model1_data.dropna(subset=["win"])
 
-feature_cols = [
-    "FG","FGA",
-    "3P","3PA",
-    "TRB","AST","STL","BLK","TOV"
-]
+feature_cols = model1_data.select_dtypes(include=[np.number]).columns.tolist()
+feature_cols = [c for c in feature_cols if c != "win"]
 
-valid_features = [c for c in feature_cols if c in model1_data.columns]
-
-model1_data[valid_features] = model1_data[valid_features].fillna(
-    model1_data[valid_features].median()
+model1_data[feature_cols] = model1_data[feature_cols].fillna(
+    model1_data[feature_cols].median()
 )
 
-st.write("Model 1 shape:", model1_data.shape)
+st.write("Dataset shape:", model1_data.shape)
+st.write("Features used:", feature_cols)
 
-X1 = model1_data[valid_features]
-y1 = model1_data["win"]
-
-if len(model1_data) < 10:
-    st.error("Not enough data after cleaning. Check feature columns.")
+if len(model1_data) < 10 or len(feature_cols) == 0:
+    st.error("Not enough usable data after cleaning.")
     st.stop()
 
+X = model1_data[feature_cols]
+y = model1_data["win"]
+
 X_train, X_test, y_train, y_test = train_test_split(
-    X1, y1, test_size=0.25, random_state=42
+    X, y, test_size=0.25, random_state=42
 )
 
-tree1 = DecisionTreeClassifier(max_depth=4, random_state=42)
-tree1.fit(X_train, y_train)
+# model
+tree = DecisionTreeClassifier(max_depth=4, random_state=42)
+tree.fit(X_train, y_train)
+
+importance = pd.DataFrame({
+    "Feature": feature_cols,
+    "Importance": tree.feature_importances_
+}).sort_values(by="Importance", ascending=False)
+
+st.subheader("Model 1: What Stats Most Impact Wins?")
+st.dataframe(importance)

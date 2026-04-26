@@ -90,18 +90,27 @@ importantFactors_data[valid_features] = importantFactors_data[valid_features].fi
     importantFactors_data[valid_features].median()
 )
 
-st.write("Dataset size:", importantFactors_data.shape)
+st.write("Model 1 dataset size:", importantFactors_data.shape)
 
 if len(importantFactors_data) < 10:
-    st.error("Not enough data to train model.")
+    st.error("Not enough data after cleaning — check missing values.")
     st.stop()
 
 X1 = importantFactors_data[valid_features]
 y1 = importantFactors_data["win"]
 
-X_train,X_test,y_train,y_test = train_test_split(
-    X1, y1, test_size=.25, random_state=42
+X_train, X_test, y_train, y_test = train_test_split(
+    X1, y1, test_size=0.25, random_state=42
 )
 
+# model
 tree1 = DecisionTreeClassifier(max_depth=4, random_state=42)
-tree1.fit(X_train,y_train)
+tree1.fit(X_train, y_train)
+
+importance = pd.DataFrame({
+    "Feature": valid_features,
+    "Importance": tree1.feature_importances_
+}).sort_values(by="Importance", ascending=False)
+
+st.subheader("Model 1: Statistics Most Related to Wins")
+st.dataframe(importance)

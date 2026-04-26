@@ -44,15 +44,15 @@ st.title("2011 Dallas Mavericks ML Analysis")
 
 # first ml model
 
-feature_cols = [
-    "FG","FGA","FG%",
-    "3P","3PA","3P%",
-    "TRB","AST","STL","BLK","TOV","FT%"
-]
-
 model1_data = reg_clean.copy()
 
 model1_data = model1_data.dropna(subset=["win"])
+
+feature_cols = [
+    "FG","FGA",
+    "3P","3PA",
+    "TRB","AST","STL","BLK","TOV"
+]
 
 valid_features = [c for c in feature_cols if c in model1_data.columns]
 
@@ -60,10 +60,14 @@ model1_data[valid_features] = model1_data[valid_features].fillna(
     model1_data[valid_features].median()
 )
 
-st.write("Model 1 dataset size:", model1_data.shape)
+st.write("Model 1 shape:", model1_data.shape)
 
 X1 = model1_data[valid_features]
 y1 = model1_data["win"]
+
+if len(model1_data) < 10:
+    st.error("Not enough data after cleaning. Check feature columns.")
+    st.stop()
 
 X_train, X_test, y_train, y_test = train_test_split(
     X1, y1, test_size=0.25, random_state=42
@@ -71,11 +75,3 @@ X_train, X_test, y_train, y_test = train_test_split(
 
 tree1 = DecisionTreeClassifier(max_depth=4, random_state=42)
 tree1.fit(X_train, y_train)
-
-importance = pd.DataFrame({
-    "Feature": valid_features,
-    "Importance": tree1.feature_importances_
-}).sort_values(by="Importance", ascending=False)
-
-st.subheader("Model 1: What Stats Most Impact Wins?")
-st.dataframe(importance)

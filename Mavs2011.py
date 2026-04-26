@@ -84,10 +84,17 @@ feature_cols = [
 ]
 
 valid_features = [col for col in feature_cols if col in reg_clean.columns]
-
-importantFactors_data = reg_clean.dropna(
-    subset=valid_features + ["win"]
+importantFactors_data = reg_clean.copy()
+importantFactors_data = importantFactors_data.dropna(subset=["win"])
+importantFactors_data[valid_features] = importantFactors_data[valid_features].fillna(
+    importantFactors_data[valid_features].median()
 )
+
+st.write("Dataset size:", importantFactors_data.shape)
+
+if len(importantFactors_data) < 10:
+    st.error("Not enough data to train model.")
+    st.stop()
 
 X1 = importantFactors_data[valid_features]
 y1 = importantFactors_data["win"]
@@ -98,10 +105,3 @@ X_train,X_test,y_train,y_test = train_test_split(
 
 tree1 = DecisionTreeClassifier(max_depth=4, random_state=42)
 tree1.fit(X_train,y_train)
-
-importance = pd.DataFrame({
-    "Feature": valid_features,
-    "Importance": tree1.feature_importances_
-}).sort_values(by="Importance", ascending=False)
-
-st.dataframe(importance)

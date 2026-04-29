@@ -18,6 +18,8 @@ playoffs = pd.read_csv(
     "https://raw.githubusercontent.com/zachjf9/Mav2011Repo/refs/heads/main/MavsPlayOffs.csv",
     header=1
 )
+#four factors data
+four_factors = pd.read_csv("MavsOppFourFactors.csv")
 
 regularSeason = regularSeason.loc[:, ~regularSeason.columns.astype(str).str.contains("Unnamed")]
 playoffs = playoffs.loc[:, ~playoffs.columns.astype(str).str.contains("Unnamed")]
@@ -92,3 +94,15 @@ ax.set_title("Feature Importance in Predicting Wins")
 ax.invert_yaxis()
 
 st.pyplot(fig)
+
+st.title("Dallas Mavericks Four Factors")
+
+cols = st.columns(2)
+
+for i, row in four_factors.iterrows():
+    fig, ax = plt.subplots(figsize=(3.5, 2.5))
+
+    ax.bar(["Mavs", "Opp"], [row["team"], row["opponent"]])
+    ax.set_title(row["metric"], fontsize=10)
+
+    cols[i % 2].pyplot(fig, use_container_width=False)

@@ -1,0 +1,11 @@
+Game_ID,Date,Team,eFG%,TOV%,ORB%,FT/FGA,Pts,Win/Loss
+11,Game 1,Mavericks,0.44,11.9,16.7,0.373,84,L
+22,Game 1,Heat,0.456,11.6,34.8,0.238,92,W
+33,Game 2,Mavericks,0.52,19.2,31.4,0.227,95,W
+44,Game 2,Heat,0.527,12.6,16.7,0.219,93,L
+55,Game 3,Mavericks,0.487,13.3,23.1,0.154,86,L
+66,Game 3,Heat,0.457,14.6,30.8,0.314,88,W
+77,Game 4,Mavericks,0.44,14.9,34.1,0.227,86,W
+88,Game 4,Heat,0.425,11.3,29.3,0.329,83,L
+99,Game 5,Mavericks,0.586,18.1,29,0.3,112,W
+100,Game 5,Heat,0.659,12,12.9,0.304,103,L
